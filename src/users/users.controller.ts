@@ -1,11 +1,8 @@
 import {
   Body,
   Controller,
-  FileTypeValidator,
   Get,
   Injectable,
-  MaxFileSizeValidator,
-  ParseFilePipe,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -14,6 +11,7 @@ import { CreateUserDto } from './dto/CreateUserDto';
 import { UserService } from './users.service';
 import { LoginDto } from './dto/Login.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ImagePipe } from 'src/common/pipes/upload-image.pipe';
 
 @Controller('users')
 @Injectable()
@@ -29,21 +27,7 @@ export class UserConroller {
   @UseInterceptors(FileInterceptor('avatar'))
   createUser(
     @Body() body: CreateUserDto,
-    @UploadedFile(
-      new ParseFilePipe({
-        fileIsRequired: false,
-        validators: [
-          new FileTypeValidator({
-            skipMagicNumbersValidation: false,
-            fileType: /^image\/(png|jpg|webp|jpeg)$/,
-            errorMessage: 'file must be image',
-          }),
-          new MaxFileSizeValidator({
-            maxSize: 5 * 1024 * 1024,
-          }),
-        ],
-      }),
-    )
+    @UploadedFile(new ImagePipe(false))
     image?: Express.Multer.File,
   ) {
     return this.userServie.createUser(body, image);

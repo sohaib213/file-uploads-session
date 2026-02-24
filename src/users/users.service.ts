@@ -17,7 +17,7 @@ import { JwtService } from '@nestjs/jwt';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { ProfilePictureUrl } from 'src/common/assets/defaultPhotos';
 
-const usersData = usersJson as unknown as UserEntity[];
+export const usersData = usersJson as unknown as UserEntity[];
 const filePath = path.join(
   process.cwd(),
   'src',
@@ -97,7 +97,7 @@ export class UserService {
 
   async generateToken(user: UserEntity) {
     const payload: JwtPayload = {
-      email: user.email,
+      id: user.id,
       role: user.role,
     };
     return await this.jwtService.signAsync(payload);
