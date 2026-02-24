@@ -51,6 +51,7 @@ export class UserService {
     }
     const hashedPassword = bcrypt.hashSync(password, this.saltRound);
     const newUser: UserEntity = {
+      id: usersData[usersData.length - 1].id + 1,
       email,
       username,
       password: hashedPassword,

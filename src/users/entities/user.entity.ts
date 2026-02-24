@@ -1,8 +1,9 @@
 import { userRoles } from '../dto/CreateUserDto';
 
 export interface UserEntity {
-  username: string;
+  id: number;
   email: string;
+  username: string;
   age: number;
   role: userRoles;
   password: string;
