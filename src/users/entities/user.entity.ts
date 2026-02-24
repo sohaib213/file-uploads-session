@@ -7,4 +7,5 @@ export interface UserEntity {
   age: number;
   role: userRoles;
   password: string;
+  avatar: string;
 }

@@ -3,6 +3,7 @@ import { UserConroller } from './users.controller';
 import { UserService } from './users.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         signOptions: { expiresIn: '5m' },
       }),
     }),
+    CloudinaryModule,
   ],
   controllers: [UserConroller],
   providers: [UserService],

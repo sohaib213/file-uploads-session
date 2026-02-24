@@ -14,6 +14,8 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/Login.dto';
 import { JwtPayload } from 'src/common/interfaces/jwtPayload';
 import { JwtService } from '@nestjs/jwt';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { ProfilePictureUrl } from 'src/common/assets/defaultPhotos';
 
 const usersData = usersJson as unknown as UserEntity[];
 const filePath = path.join(
@@ -28,7 +30,10 @@ const filePath = path.join(
 export class UserService {
   private readonly saltRound = 10;
 
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   getAllUsers() {
     return usersData.map((u) => ({
@@ -39,7 +44,7 @@ export class UserService {
     }));
   }
 
-  async createUser(dto: CreateUserDto) {
+  async createUser(dto: CreateUserDto, image?: Express.Multer.File) {
     const { email, username, age, password, confirm_password, role } = dto;
     if (password !== confirm_password) {
       throw new BadRequestException("passwords don't match");
@@ -50,13 +55,24 @@ export class UserService {
       throw new BadRequestException('user with this email already exists');
     }
     const hashedPassword = bcrypt.hashSync(password, this.saltRound);
+
+    let avatar = ProfilePictureUrl;
+    if (image) {
+      const imageRes = await this.cloudinaryService.uploadImage(
+        image,
+        'users/avatar',
+      );
+      avatar = imageRes.url;
+    }
+
     const newUser: UserEntity = {
-      id: usersData[usersData.length - 1].id + 1,
+      id: usersData.length > 0 ? usersData[usersData.length - 1].id + 1 : 1,
       email,
       username,
       password: hashedPassword,
       age,
       role,
+      avatar,
     };
     usersData.push(newUser);
     await fs.promises.writeFile(filePath, JSON.stringify(usersData, null, 2));
