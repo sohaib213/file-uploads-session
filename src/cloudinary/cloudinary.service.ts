@@ -100,10 +100,14 @@ export class CloudinaryService {
   }
 
   async deleteFile(
-    publicId: string,
+    url: string,
     resourceType: 'image' | 'video' | 'raw' = 'image',
   ): Promise<CloudinaryDeleteResult> {
     try {
+      const publicId = this.extractPublicId(url);
+      if (!publicId) {
+        throw new InternalServerErrorException('Invalid Cloudinary URL');
+      }
       const result = (await cloudinary.uploader.destroy(publicId, {
         resource_type: resourceType,
         invalidate: true,
@@ -126,12 +130,12 @@ export class CloudinaryService {
   /**
    * Delete video from Cloudinary
    */
-  async deleteVideo(publicId: string): Promise<CloudinaryDeleteResult> {
-    return this.deleteFile(publicId, 'video');
+  async deleteVideo(url: string): Promise<CloudinaryDeleteResult> {
+    return this.deleteFile(url, 'video');
   }
 
-  async deleteImage(publicId: string): Promise<CloudinaryDeleteResult> {
-    return this.deleteFile(publicId, 'image');
+  async deleteImage(url: string): Promise<CloudinaryDeleteResult> {
+    return this.deleteFile(url, 'image');
   }
 
   /**
@@ -169,19 +173,6 @@ export class CloudinaryService {
       console.error(`Failed to determine resource type: ${url}`, error);
       return null;
     }
-  }
-
-  /**
-   * Delete file with auto-detected resource type from URL
-   */
-  async deleteFileAuto(url: string): Promise<CloudinaryDeleteResult> {
-    const publicId = this.extractPublicId(url);
-    if (!publicId) {
-      throw new InternalServerErrorException('Invalid Cloudinary URL');
-    }
-
-    const resourceType = this.getResourceType(url) || 'image';
-    return this.deleteFile(publicId, resourceType);
   }
 
   /**
